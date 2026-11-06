@@ -114,7 +114,6 @@ class GeminiPromptEnhance:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "text": ("STRING", {"forceInput": True}),
                 "model": (MODELS, {"default": DEFAULT_MODEL}),
                 "seed": ("INT", {"default": 42, "min": 0, "max": 2 ** 31 - 1}),
                 "thinking": ("BOOLEAN", {"default": True}),
@@ -124,6 +123,7 @@ class GeminiPromptEnhance:
                 "max_output_tokens": ("INT", {"default": 8192, "min": 1, "max": 65536}),
                 "placeholder": ("STRING", {"default": "{TEXT}", "multiline": False}),
                 "prompt": ("STRING", {"default": DEFAULT_PROMPT, "multiline": True}),
+                "text": ("STRING", {"default": "", "multiline": False}),
             }
         }
 
