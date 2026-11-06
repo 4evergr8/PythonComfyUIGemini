@@ -136,7 +136,7 @@ class GeminiPromptEnhance:
             max_output_tokens, placeholder, prompt):
         contents = prompt.replace(placeholder, text)
         config = types.GenerateContentConfig(
-            seed=seed,
+            seed=seed % (2 ** 31),
             temperature=temperature,
             top_p=top_p,
             top_k=top_k,
