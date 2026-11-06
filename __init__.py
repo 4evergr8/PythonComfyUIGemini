@@ -121,7 +121,7 @@ class GeminiPromptEnhance:
                 "temperature": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.05}),
                 "top_p": ("FLOAT", {"default": 0.95, "min": 0.0, "max": 1.0, "step": 0.01}),
                 "top_k": ("INT", {"default": 40, "min": 0, "max": 100}),
-                "max_output_tokens": ("INT", {"default": 4096, "min": 1, "max": 65536}),
+                "max_output_tokens": ("INT", {"default": 8192, "min": 1, "max": 65536}),
                 "placeholder": ("STRING", {"default": "{TEXT}", "multiline": False}),
                 "prompt": ("STRING", {"default": DEFAULT_PROMPT, "multiline": True}),
             }
@@ -148,7 +148,7 @@ class GeminiPromptEnhance:
         )
         resp = with_key(lambda c: c.models.generate_content(
             model=model, contents=contents, config=config))
-        return (resp.text,)
+        return (resp.text or "",)
 
 
 NODE_CLASS_MAPPINGS = {"GeminiPromptEnhance": GeminiPromptEnhance}
