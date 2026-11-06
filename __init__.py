@@ -148,9 +148,11 @@ class GeminiPromptEnhance:
         )
         resp = with_key(lambda c: c.models.generate_content(
             model=model, contents=contents, config=config))
-        if resp.candidates[0].finish_reason == types.FinishReason.PROHIBITED_CONTENT:
-            raise RuntimeError("Gemini 返回 PROHIBITED_CONTENT：内容被服务端拦截")
-        return (resp.text or "",)
+        out = resp.text or ""
+        if not out.strip():
+            raise RuntimeError(
+                f"Gemini 返回空内容，finish_reason={resp.candidates[0].finish_reason}")
+        return (out,)
 
 
 NODE_CLASS_MAPPINGS = {"GeminiPromptEnhance": GeminiPromptEnhance}
