@@ -97,13 +97,24 @@ def get_client(key):
     return _clients[key]
 
 
-def with_key(fn):
+def generate(model, contents, config):
+    """流式请求：每个数据块之间检查 ComfyUI 中断，取消时立即断开连接。"""
+    from comfy.model_management import throw_exception_if_processing_interrupted
+
     keys = load_keys()
     random.shuffle(keys)
     error = None
     for key in keys:
         try:
-            return fn(get_client(key))
+            parts = []
+            last = None
+            for chunk in get_client(key).models.generate_content_stream(
+                    model=model, contents=contents, config=config):
+                throw_exception_if_processing_interrupted()
+                last = chunk
+                if chunk.text:
+                    parts.append(chunk.text)
+            return "".join(parts), last
         except Exception as e:
             error = e
     raise error
@@ -146,12 +157,10 @@ class GeminiPromptEnhance:
             thinking_config=types.ThinkingConfig(
                 thinking_level="high" if thinking else "minimal"),
         )
-        resp = with_key(lambda c: c.models.generate_content(
-            model=model, contents=contents, config=config))
-        out = resp.text or ""
+        out, last = generate(model, contents, config)
         if not out.strip():
-            raise RuntimeError(
-                f"Gemini 返回空内容，finish_reason={resp.candidates[0].finish_reason}")
+            reason = last.candidates[0].finish_reason if last and last.candidates else "无响应"
+            raise RuntimeError(f"Gemini 返回空内容，finish_reason={reason}")
         return (out,)
 
 
