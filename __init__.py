@@ -35,22 +35,47 @@ DEFAULT_PROMPT = """Convert this tag list into an Anima prompt. Follow the forma
 Print only the two blocks themselves. Never print the layer headings, labels, or any bullet markers.
 
 ## Layer 1 — hard tags, single line
-- Comma plus space separated, lowercase, underscores replaced by spaces.
+- Comma plus space separated, lowercase, underscores replaced by spaces. Escape parentheses inside a tag with a backslash.
 - Include: subject count, per-character appearance and outfit, pose, expression, props, and concise scene anchors.
 - Exclude: full sentences, subject scale, composition layout, light direction, colour hierarchy, quality tags, artist tags, and safety tags. Those are appended externally.
 - Never invent a tag the input does not support. If unsure whether a tag exists, express the idea in the natural language layer instead.
 - Remove character identity: hair colour, eye colour, halo, character names, and series names.
+- Order: subject count first, then per-character blocks. A character's own appearance, outfit, and props must stay adjacent; never interleave attributes of different characters.
 - Group tags by their final noun and keep at most two per group, covering different dimensions. When a general and a specific form share the same noun, keep only the specific one.
 - Emoji-style expression tags must survive verbatim.
 - Hard tags must match the shot size you will describe: for a close-up drop legs, feet, footwear, and lower garments; for an upper-body shot drop skirt, trousers, and leg tags; for a full-body shot keep them because the body is visible.
 - Tag count by complexity: simple 16–30, standard 22–38, complex environment or multiple characters 30–48.
+- Trim in this order when the list is too long: tags invisible at the chosen shot size, then tags that conflict with count, action, gaze, or outfit state, then broad or near-duplicate tags covered by a more precise one, then minor decorative details.
 
 ## Layer 2 — natural language
-- 2–3 sentences for a simple character-dominant scene, 3–5 for a complex environment, 3–6 for multiple characters.
+- 2–3 sentences for a simple character-dominant scene, 3–5 for a complex environment, 3–6 for multiple characters. Choose the count by what the duties require, never by padding.
 - Sentence one: shot size, first visual subject, composition mode, main visual anchors, overall layout.
 - Sentence two: the composition map, using left, right, centre, upper, lower, foreground, middle ground, and background — main zones, framing elements, leading lines, and breathing space.
-- Sentence three: the subject's scale in the frame, its position, its function, its action, its gaze, and how it contacts existing props. For multiple characters, give each character its own anchoring sentence first, then a separate sentence for interaction that names who acts on whom.
+- Sentence three: the subject's scale in the frame, its position, its function, its action, its gaze, and how it contacts existing props.
 - Final sentence: the main light source, its direction, which part of the subject it lights, what the background light does, and what remains in shadow; then colour roles — one dominant hue and at most two accents, each bound to a named object or area.
+
+# Composition modes and subject scale
+- character-dominant: the subject fills roughly 65–85% of the frame height.
+- character-and-environment balanced: 40–65%.
+- readable figure inside an environment: 20–40%.
+- pure scale or narrative anchor: 8–25%.
+- Shot size tags only define what is visible, never how large the subject appears. Never use weights or tags such as full body to substitute for describing scale.
+- A full-body shot of a dominant character must show the whole body and footwear, but must not shrink the character into a distant figure.
+
+# Multiple characters
+- Declare the exact count and gender split; never write multiple girls when the exact number is known, and never keep solo alongside a second character.
+- Establish each character's identity before any interaction tag.
+- Give each character its own anchoring sentence, structured as: on the left side of the image is X, wearing …, with …. Never pack two characters into one nested sentence.
+- For each visible category — hairstyle, top, bottom, footwear, prop, pose — give at least one representative feature per character. Never invent a category that does not exist in the input.
+- Use image-relative positions: on the left side of the image, on the right side, in the centre, in the foreground, in the background. Never mix image left with the character's own left.
+- Write interaction only after all characters are anchored, naming who acts on whom. Never use vague interacting or together.
+
+# Gaze
+- For a portrait or a scene without a clear action target, the subject may look at the viewer.
+- When the action involves reading, working, sleeping, or handling a prop, the gaze must follow that action.
+- If the input states a profile, a back view, or looking away, keep it.
+
+# Prohibitions
 - Never add foreground occlusion unless the input already contains a foreground object.
 - Never state hair colour, eye colour, halo, character names, or series names.
 - Never write "the image shows" or "we can see". No quality words, artist names, or model names.
@@ -58,7 +83,8 @@ Print only the two blocks themselves. Never print the layer headings, labels, or
 
 # Final check
 - Do the hard tags match the shot size named in the natural language?
-- Any contradictory pair — close-up versus full body, looking at viewer versus facing away, open mouth versus closed mouth?
+- Any contradictory pair: close-up versus full body, from front versus from behind, looking at viewer versus facing away, solo versus multiple characters, open mouth versus closed mouth, spread fingers versus clenched fist, spread legs versus legs together, full nudity versus specific clothing, two mutually exclusive poses of the same action.
+- Does each character's attributes stay grouped, with no interleaving?
 - Did every emoji-style expression tag survive?
 - Is any tag a duplicate, or a general form of another tag?
 
