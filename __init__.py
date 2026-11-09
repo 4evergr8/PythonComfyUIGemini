@@ -20,75 +20,42 @@ SAFETY_CATEGORIES = [
 
 HTTP_OPTIONS = types.HttpOptions(timeout=300_000)
 
-DEFAULT_PROMPT = """Convert this tag list into an Anima prompt. Follow the format exactly.
+DEFAULT_PROMPT = """
+请优化以下 Anima 模型使用的纯 Tag 提示词：
+
 {TEXT}
 
-# Decide before writing (internal only, never output)
-1. What is the first visual subject — a character, a building, an environment, or a prop?
-2. Which composition mode fits it: character-dominant, character-and-environment balanced, environment-dominant, or small-figure scale anchor?
-3. Where do the main visual anchors sit?
-4. What role does the character serve — main subject, scale reference, colour focus, or narrative entry?
-5. How are foreground, middle ground, and background organised?
-6. How do key light and colour establish hierarchy?
+严格遵守以下规则：
 
-# Output: two layers, separated by exactly one blank line
-Print only the two blocks themselves. Never print the layer headings, labels, or any bullet markers.
+1. 以原始 Tag 为基础进行优化，保留原有画面主题、人物设定、服装设计、动作、表情、构图和装饰特征。不要改变原始画面的核心内容。
 
-## Layer 1 — hard tags, single line
-- Comma plus space separated, lowercase, underscores replaced by spaces. Escape parentheses inside a tag with a backslash.
-- Include: subject count, per-character appearance and outfit, pose, expression, props, and concise scene anchors.
-- Exclude: full sentences, subject scale, composition layout, light direction, colour hierarchy, quality tags, artist tags, and safety tags. Those are appended externally.
-- Never invent a tag the input does not support. If unsure whether a tag exists, express the idea in the natural language layer instead.
-- Remove character identity: hair colour, eye colour, halo, character names, and series names.
-- Order: subject count first, then per-character blocks. A character's own appearance, outfit, and props must stay adjacent; never interleave attributes of different characters.
-- Group tags by their final noun and keep at most two per group, covering different dimensions. When a general and a specific form share the same noun, keep only the specific one.
-- Emoji-style expression tags must survive verbatim.
-- Hard tags must match the shot size you will describe: for a close-up drop legs, feet, footwear, and lower garments; for an upper-body shot drop skirt, trousers, and leg tags; for a full-body shot keep them because the body is visible.
-- Tag count by complexity: simple 16–30, standard 22–38, complex environment or multiple characters 30–48.
-- Trim in this order when the list is too long: tags invisible at the chosen shot size, then tags that conflict with count, action, gaze, or outfit state, then broad or near-duplicate tags covered by a more precise one, then minor decorative details.
+2. 采用双层排序结构：
+   - 第一层：主体信息，按照重要程度排列人物数量、核心构图、镜头视角、人物特征、动作姿势、服装、表情等核心 Tag。
+   - 第二层：细节补充，继续沿着原有 Tag 丰富人物、身体、服装、动作、装饰、画面表现及光影细节。
 
-## Layer 2 — natural language
-- 2–3 sentences for a simple character-dominant scene, 3–5 for a complex environment, 3–6 for multiple characters. Choose the count by what the duties require, never by padding.
-- Sentence one: shot size, first visual subject, composition mode, main visual anchors, overall layout.
-- Sentence two: the composition map, using left, right, centre, upper, lower, foreground, middle ground, and background — main zones, framing elements, leading lines, and breathing space.
-- Sentence three: the subject's scale in the frame, its position, its function, its action, its gaze, and how it contacts existing props.
-- Final sentence: the main light source, its direction, which part of the subject it lights, what the background light does, and what remains in shadow; then colour roles — one dominant hue and at most two accents, each bound to a named object or area.
+3. 不要机械地按照分类平均分配 Tag。将更多细节集中在人物表现、服装设计、身体细节、姿势、画面质感和光影上，优先丰富已有内容。
 
-# Composition modes and subject scale
-- character-dominant: the subject fills roughly 65–85% of the frame height.
-- character-and-environment balanced: 40–65%.
-- readable figure inside an environment: 20–40%.
-- pure scale or narrative anchor: 8–25%.
-- Shot size tags only define what is visible, never how large the subject appears. Never use weights or tags such as full body to substitute for describing scale.
-- A full-body shot of a dominant character must show the whole body and footwear, but must not shrink the character into a distant figure.
+4. 积极扩展原始 Tag 的表现力，使最终画面朝向精致、漂亮、具有视觉吸引力的高质量二次元插画方向优化。可以补充能够体现人物美感、服装精致度、姿势表现力、画面层次感和光影效果的相关 Tag。
 
-# Multiple characters
-- Declare the exact count and gender split; never write multiple girls when the exact number is known, and never keep solo alongside a second character.
-- Establish each character's identity before any interaction tag.
-- Give each character its own anchoring sentence, structured as: on the left side of the image is X, wearing …, with …. Never pack two characters into one nested sentence.
-- For each visible category — hairstyle, top, bottom, footwear, prop, pose — give at least one representative feature per character. Never invent a category that does not exist in the input.
-- Use image-relative positions: on the left side of the image, on the right side, in the centre, in the foreground, in the background. Never mix image left with the character's own left.
-- Write interaction only after all characters are anchored, naming who acts on whom. Never use vague interacting or together.
+5. 不要凭空添加原始提示词没有体现的场景、背景物品或环境设定。没有背景信息就不要添加背景 Tag。不要为了凑数量强行扩展无关内容。
 
-# Gaze
-- For a portrait or a scene without a clear action target, the subject may look at the viewer.
-- When the action involves reading, working, sleeping, or handling a prop, the gaze must follow that action.
-- If the input states a profile, a back view, or looking away, keep it.
+6. 删除人物独有的身份识别信息，例如发色、瞳色，以及 halo、光环等光环相关信息。
 
-# Prohibitions
-- Never add foreground occlusion unless the input already contains a foreground object.
-- Never state hair colour, eye colour, halo, character names, or series names.
-- Never write "the image shows" or "we can see". No quality words, artist names, or model names.
-- Concrete nouns and verbs, present tense, active voice.
+7. 删除重复、矛盾、冗余或没有实际意义的 Tag。允许将原有 Tag 替换为更准确、更规范的 Danbooru 风格 Tag。
 
-# Final check
-- Do the hard tags match the shot size named in the natural language?
-- Any contradictory pair: close-up versus full body, from front versus from behind, looking at viewer versus facing away, solo versus multiple characters, open mouth versus closed mouth, spread fingers versus clenched fist, spread legs versus legs together, full nudity versus specific clothing, two mutually exclusive poses of the same action.
-- Does each character's attributes stay grouped, with no interleaving?
-- Did every emoji-style expression tag survive?
-- Is any tag a duplicate, or a general form of another tag?
+8. **只能使用具有实际画面描述意义的内容 Tag。** 例如人物数量、人物特征、服装、动作、表情、构图、环境、光影等。禁止添加任何质量评价、画质评价、风格评价、画师、模型或生成效果类标签，包括但不限于 masterpiece、best quality、high quality、absurdres、highres、official art 等。优化方向应通过具体的画面内容 Tag 实现，而不是通过质量标签实现。
 
-Output only the two layers."""
+9. 不要局限于原始 Tag 的数量，可以根据已有内容合理丰富，但所有新增 Tag 都必须与原始画面内容具有明确关联，不得无依据地改变人物设计或画面设定。
+
+10. 最终输出必须包含 50～60 个 Tag，按照逗号分隔计算，每个 Tag 计为一个词。不得通过重复或无关 Tag 凑数。
+
+11. 输出前自行检查 Tag 数量、重复项、排除项和排列顺序。
+
+最终只输出优化后的纯 Tag 提示词。不要输出标题、分类说明、数量统计、Markdown 代码块或任何解释。
+
+
+
+"""
 
 MODELS = [
     "gemini-4-argon",
@@ -193,7 +160,7 @@ class GeminiPromptEnhance:
                 "temperature": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 2.0, "step": 0.05}),
                 "top_p": ("FLOAT", {"default": 0.95, "min": 0.0, "max": 1.0, "step": 0.01}),
                 "top_k": ("INT", {"default": 40, "min": 0, "max": 100}),
-                "max_output_tokens": ("INT", {"default": 8192, "min": 1, "max": 65536}),
+                "max_output_tokens": ("INT", {"default": 50000, "min": 1, "max": 65536}),
                 "placeholder": ("STRING", {"default": "{TEXT}", "multiline": False}),
                 "prompt": ("STRING", {"default": DEFAULT_PROMPT, "multiline": True}),
                 "text": ("STRING", {"default": "", "multiline": False}),
