@@ -8,6 +8,7 @@ ComfyUI 自定义节点：调用 Gemini / Gemma 模型优化图像生成提示�
 
 ## 功能
 
+- **零依赖**：不需要 `pip install`，放入 `custom_nodes` 即可用
 - **单节点闭环**：输入文本 → LLM 优化 → 输出文本，无需额外脚本
 - **提示词完全可编辑**：默认提示词只是起点，节点里直接改
 - **支持前端中断**：流式读取，点击取消后约 0.2 秒内断开请求
@@ -28,18 +29,20 @@ git clone https://github.com/4evergr8/PythonComfyUIGemini.git
 
 或直接下载 ZIP 解压到 `ComfyUI/custom_nodes/PythonComfyUIGemini/`。
 
-### 2. 安装依赖
+### 2. 依赖：无需额外安装
 
-**便携版（Windows）**
+**本节点不需要安装任何第三方依赖。** 它只用到 `google-genai`，而 ComfyUI 环境已内置（便携版自带 3.0.0），放入 `custom_nodes` 后直接可用。
+
+不要执行 `pip install`，也不需要装 requirements。
+
+仅当你启动时看到 `ModuleNotFoundError: No module named 'google.genai'`，才说明环境确实缺失，此时再补装：
 
 ```bash
+# 便携版
 cd ComfyUI/custom_nodes/PythonComfyUIGemini
 ../../python_embeded/python.exe -m pip install google-genai
-```
 
-**手动部署 / Linux**
-
-```bash
+# 手动部署 / Linux
 pip install google-genai
 ```
 
